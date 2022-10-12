@@ -4,7 +4,7 @@ node_modules
 
 # Quasar core related directories
 .quasar
-/dist
+# /dist # wtg 20221012: removing to deploy to ghpages
 
 # Cordova related directories and files
 /src-cordova/node_modules
