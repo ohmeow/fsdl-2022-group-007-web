@@ -89,7 +89,7 @@
             icon="save"
             text-color="white"
             label="Update Predictions"
-            :disable="currentTaskId === null"
+            :disable="currentTask === null"
             @click="updatePredictions"
           />
           <q-btn
@@ -99,8 +99,8 @@
             icon="undo"
             text-color="white"
             label="Undo Changes"
-            :disable="currentTaskId === null"
-            @click="getResults(currentTaskId)"
+            :disable="currentTask === null"
+            @click="getResults(currentTask)"
           />
 
           <q-btn
@@ -110,7 +110,7 @@
             text-color="white"
             icon="file_download"
             label="Export Chapter Markers"
-            :disable="currentTaskId === null"
+            :disable="currentTask === null"
             @click="downloadChapterMarkers"
           />
           <q-btn
@@ -120,7 +120,7 @@
             icon="file_download"
             text-color="white"
             label="Export Quarto Blog Post"
-            :disable="currentTaskId === null"
+            :disable="currentTask === null"
             @click="downloadQuartoFile"
           />
         </div>
@@ -164,7 +164,7 @@
   </q-page>
   <!-- show tasks modal-->
   <q-dialog v-model="showTasks">
-    <q-card>
+    <q-card style="max-width: 1500px; width: 1000px">
       <q-card-section
         class="row items-center"
         v-for="task in tasks"
@@ -173,10 +173,16 @@
         <q-avatar
           :icon="getTaskStatusIcon(task.status)"
           :color="getTaskStatusIconColor(task.status)"
+          :alt="task.status"
+          :tooltip="task.status"
           text-color="white"
-        />
+        >
+          <q-tooltip>
+            {{ task.status }}
+          </q-tooltip>
+        </q-avatar>
         <span class="q-ml-sm">
-          {{ task.video_id }} ({{ task.status }})
+          {{ task.video.url }}
           <q-btn
             class="q-ml-sm"
             style="height: 100%"
@@ -185,7 +191,7 @@
             text-color="white"
             label="View Results"
             :disable="task.status !== 'completed'"
-            @click="getResults(task.id)"
+            @click="getResults(task)"
           />
         </span>
       </q-card-section>
@@ -211,7 +217,7 @@ const predictionResults = ref({});
 
 const showTasks = ref(false);
 const tasks = ref([]);
-const currentTaskId = ref(null);
+const currentTask = ref(null);
 
 const getTaskStatusIcon = (status) => {
   if (status === "completed") {
@@ -242,7 +248,7 @@ const getTaskStatusIconColor = (status) => {
  */
 const loadVideo = () => {
   // grab the video ID
-  let m = videoUrl.value.match(/v=(.*)/);
+  let m = videoUrl.value.match(/v=([^&]*)/);
   if (m === null) {
     return;
   }
@@ -309,18 +315,22 @@ const get_tasks = async () => {
   $q.loading.hide();
 };
 
-const getResults = async (taskId) => {
+const getResults = async (task) => {
   predictionResults.value = [];
-  currentTaskId.value = taskId;
+  currentTask.value = task;
+  videoUrl.value = task.video.url;
 
   $q.loading.show();
 
   try {
-    const { data: res } = await axios.get(`${apiUrl}/results/${taskId}`);
+    const { data: res } = await axios.get(
+      `${apiUrl}/results/${currentTask.value.id}`
+    );
+    loadVideo();
     predictionResults.value = res;
     showTasks.value = false;
   } catch (err) {
-    currentTaskId.value = null;
+    currentTask.value = null;
     $q.notify({
       type: "negative",
       message: err.message || "Could not get prediction",
