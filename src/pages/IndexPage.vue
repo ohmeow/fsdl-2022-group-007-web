@@ -27,14 +27,14 @@
             color="white"
             text-color="black"
             label="Process"
-            @click="test"
+            @click="processVideo"
           />
           <q-btn
             style="height: 100%"
             outline
             color="white"
             text-color="black"
-            label="Predictions"
+            label="Get Predictions"
             @click="getResults"
           />
         </div>
@@ -87,7 +87,7 @@
             icon="save"
             text-color="white"
             label="Update Predictions"
-            @click="loadVideo"
+            @click="updatePredictions"
           />
           <q-btn
             class="q-mr-xs"
@@ -96,7 +96,7 @@
             icon="undo"
             text-color="white"
             label="Undo Changes"
-            @click="test"
+            @click="getResults"
           />
 
           <q-btn
@@ -106,7 +106,7 @@
             text-color="white"
             icon="file_download"
             label="Export Chapter Markers"
-            @click="getResults"
+            @click="downloadChapterMarkers"
           />
           <q-btn
             class="q-ml-sm"
@@ -115,7 +115,7 @@
             icon="file_download"
             text-color="white"
             label="Export Quarto Blog Post"
-            @click="getResults"
+            @click="downloadQuartoFile"
           />
         </div>
       </div>
@@ -493,6 +493,9 @@ const predictionResults = ref({
   ],
 });
 
+/**
+ * YouTube Player controls
+ */
 const loadVideo = () => {
   // grab the video ID
   let m = videoUrl.value.match(/v=(.*)/);
@@ -508,6 +511,27 @@ const loadVideo = () => {
 
 const seekTo = (seconds) => {
   player.value.seekTo(seconds, true);
+};
+
+const onReady = () => {
+  if (player.value.$el.src === "") {
+    return;
+  }
+  console.log("here");
+  // player.value.playVideo();
+};
+
+/**
+ * Working with predictions
+ */
+
+const processVideo = async () => {
+  $q.loading.show();
+  $q.notify({
+    type: "positive",
+    message: "Processing video ...",
+  });
+  $q.loading.hide();
 };
 
 const getResults = async () => {
@@ -526,11 +550,30 @@ const getResults = async () => {
   $q.loading.hide();
 };
 
-const onReady = () => {
-  if (player.value.$el.src === "") {
-    return;
-  }
-  console.log("here");
-  // player.value.playVideo();
+const updatePredictions = async () => {
+  $q.loading.show();
+  $q.notify({
+    type: "positive",
+    message: "Predictions updated",
+  });
+  $q.loading.hide();
+};
+
+const downloadChapterMarkers = async () => {
+  $q.loading.show();
+  $q.notify({
+    type: "positive",
+    message: "Chapter markers downloaded",
+  });
+  $q.loading.hide();
+};
+
+const downloadQuartoFile = async () => {
+  $q.loading.show();
+  $q.notify({
+    type: "positive",
+    message: "Quarto file downloaded",
+  });
+  $q.loading.hide();
 };
 </script>
