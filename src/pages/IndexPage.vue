@@ -212,7 +212,7 @@ const player = ref(null);
 const videoUrl = ref(null);
 const videoId = ref(null);
 
-const apiUrl = "http://labs.suva.sh:8080";
+const apiUrl = "/api/v0";
 const predictionResults = ref({});
 
 const showTasks = ref(false);
@@ -280,7 +280,7 @@ const processVideo = async () => {
 
   try {
     const formData = { url: videoUrl.value };
-    const { data: res } = await axios.post(`${apiUrl}/videos`, formData);
+    const { data: res } = await axios.post(`${apiUrl}/videos/`, formData);
     $q.notify({
       type: "positive",
       message: "Video is being processed ...",
@@ -300,7 +300,7 @@ const get_tasks = async () => {
 
   try {
     const { data: res } = await axios.get(
-      `${apiUrl}/tasks?limit=20&order=desc`
+      `${apiUrl}/tasks/?limit=20&order=desc`
     );
     tasks.value = res;
     showTasks.value = true;
